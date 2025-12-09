@@ -1,18 +1,14 @@
-import socket
-import sys
-import os
-import time
-from art import *
-import random
-import string
 import hashlib
-import threading
-from _thread import *
-
 import multiprocessing
-import tkinter as tk
+import os
+import random
+import socket
+import string
+import threading
 import time
+import tkinter as tk
 
+from art import tprint
 
 characters = string.ascii_letters + string.digits
 
@@ -273,9 +269,9 @@ class Start():
         #### read open ports ####
         list_of_ports = []
 
-        for i in range(65536):
+        for i in range(0, 65536, 1000):
             s = socket.socket()
-            s.settimeout(1)
+            s.settimeout(0.1)
             try:
                 s.connect(('127.0.0.1', i))
             except socket.error:
@@ -285,7 +281,7 @@ class Start():
                 list_of_ports.append(i)
         #########################
 
-        os.system("clear")
+        os.system("cls")
         tprint("Anon    chat")
 
 
@@ -298,16 +294,16 @@ class Start():
             ip_adr = "localhost"
             nickname = None
             while not key_is_correct:
-                os.system("clear")
+                os.system("cls")
                 tprint("Anon    chat")
                 private_key = "?" + ''.join(random.choice(characters) for i in range(6))
                 print(f"checking key {private_key} for unic.")
                 time.sleep(0.75)
-                os.system("clear")
+                os.system("cls")
                 tprint("Anon    chat")
                 print(f"checking key {private_key} for unic..")
                 time.sleep(0.75)
-                os.system("clear")
+                os.system("cls")
                 tprint("Anon    chat")
                 print(f"checking key {private_key} for unic...")
                 time.sleep(0.75)
@@ -321,7 +317,7 @@ class Start():
                 if port_for_key not in list_of_ports or port_for_key > 2000:
                     try:
                         
-                        os.system("clear")
+                        os.system("cls")
                         tprint("Anon    chat")
                         print(f"trying to create server by private key {private_key}")
                         server = Server(ip_adr, port_for_key, private_key, nickname)
@@ -351,7 +347,7 @@ class Start():
 
             if port_for_key not in list_of_ports or port_for_key < 2000:
                 key_is_correct = True
-                os.system("clear")
+                os.system("cls")
                 tprint("Anon    chat")
                 print(f"done! {private_key_for_client} is correct")
             nickname = input("Enter your nickname for chat (max len 16): ")
@@ -384,3 +380,4 @@ if __name__ == "__main__":
     
     #TODO: 1. check users by ip
     #      2. create ports for chat by some hash func
+   
