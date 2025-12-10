@@ -78,7 +78,7 @@ class Server():
         self.socket = socket.socket()
         self.socket.bind((self.ip_address, self.port))
         self.socket.listen()
-        print(f'Server is running and listening on port {self.port}' 
+        print(f'Server is running and listening on port {self.port} ' 
               f'by private key {self.key}...')
         while True:
             print(self.clients, self.nickname)
@@ -361,7 +361,7 @@ class Start():
                         os.system("cls")
                         tprint("Anon    chat")
                         print(
-                            f"trying to create server by private key"
+                            f"trying to create server by private key "
                             f"{private_key}"
                         )
                         server = Server(
