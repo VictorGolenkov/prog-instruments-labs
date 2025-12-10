@@ -17,10 +17,6 @@ from art import tprint
 
 characters = string.ascii_letters + string.digits
 
-
-
-
-
 class Server():
     """Server class for handling multiple client connections."""
     
@@ -44,7 +40,6 @@ class Server():
         self.clients = []
         self.nicknames = []
 
-
     def handle_client(self, client):
         """
         Handle messages from a single client.
@@ -64,9 +59,6 @@ class Server():
                 self.broadcast(f'{nickname} has left the chat room!'.encode('utf-8'))
                 self.nicknames.remove(nickname)
                 break
-
-
-   
 
     def broadcast(self, message):
         """
@@ -108,14 +100,11 @@ class Server():
             thread = threading.Thread(target=self.handle_client, args=(self.socketConnection,))
             thread.start()
 
-
-
     def close_connection(self):
         """Close all server connections."""
         self.socketConnection.close()
         self.socket.close()
         self.connectionAddress = None
-
 
 
 class Client():
@@ -147,7 +136,6 @@ class Client():
         self.queue = queue
         self.queue_send = queue_send
         #TODO: queue v __init__ (param) a dalshe hz
-
 
     def connect_to_server(self):
         """
@@ -225,14 +213,10 @@ class Client():
                 nickname = receivedString[-16::]
                 nickname.replace("\x00", "")
 
-
                 if nickname.replace("\x00", "") != self.nickname.replace("\x00", ""):
                     message = receivedString[0:-16]
                     self.full_recieved_msg = f"{nickname}: {message}"
                     self.queue.put(self.full_recieved_msg)
-
-    
-
 
     def add_lines(self):
         """Update GUI with messages from the queue."""
@@ -255,7 +239,6 @@ class Client():
         self.queue_send.put(msg_for_send)
         self.entry1.delete(0, 'end')
 
-
     def run_gui(self):
         """Initialize and run the GUI."""
         self.root= tk.Tk()
@@ -270,8 +253,6 @@ class Client():
         self.button1 = tk.Button(self.root, text='send', command=self.send_msg_button)
         self.button1.place(x=400, y=450)
 
-
-
         self.scrollbar = tk.Scrollbar(self.root)
         self.scrollbar.pack(side="right", fill="none", expand=True)
         self.text_output = tk.Text(self.root, yscrollcommand=self.scrollbar.set)
@@ -281,14 +262,11 @@ class Client():
         self.root.minsize(500, 500)
         self.root.maxsize(500, 500)
 
-
         self.root.after(0, self.add_lines)
         self.root.mainloop()
 
-
     def run_client(self):
         """Start all client components (GUI, send, receive)."""
-        
         guiThread = multiprocessing.Process(target=self.run_gui)
         sendThread = threading.Thread(target=self.send_message)
         receiveThread = threading.Thread(target=self.recieve_message)
@@ -300,15 +278,10 @@ class Client():
 
         sendThread.join()
         receiveThread.join()
-
         
-        
-        
-
     def close_connection(self):
         """Close the client connection."""
         self.socket.close()
-
 
 
 class Start():
@@ -333,9 +306,6 @@ class Start():
 
         os.system("cls")
         tprint("Anon    chat")
-
-
-
 
         command = str(input("Are you [S]erver or [C]lient?\n"))
 
@@ -373,14 +343,11 @@ class Start():
                         server = Server(ip_adr, port_for_key, private_key, nickname)
                         server.run_server()
                         
-                        
                         key_is_correct = True
                     except:
 
                         key_is_correct = False
             
-
-
         elif command == "C":
             queue = multiprocessing.Queue()
             queue_send = multiprocessing.Queue()
@@ -408,11 +375,7 @@ class Start():
 
             if isConnected:
                 
-
                 client.run_client()
-                
-
-                
                 
             else:
                 print("Error while connecting to server")
@@ -423,9 +386,7 @@ class Start():
             Start.main_start()
 
 
-
 if __name__ == "__main__":
-    
     Start.main_start()
     
     #TODO: 1. check users by ip
