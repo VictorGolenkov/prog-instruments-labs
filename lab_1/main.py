@@ -1,3 +1,8 @@
+"""
+Anonymous Chat Application
+This module implements a simple peer-to-peer chat system.
+"""
+
 import hashlib
 import multiprocessing
 import os
@@ -17,9 +22,18 @@ characters = string.ascii_letters + string.digits
 
 
 class Server():
+    """Server class for handling multiple client connections."""
     
     def __init__(self, ip_adr, port, key, nickname):
+        """
+        Initialize the server.
         
+        Args:
+            ip_address (str): IP address to bind to
+            port (int): Port number to listen on
+            key (str): Private key for authentication
+            nickname (str): Server nickname
+        """
         self.ip_adr = ip_adr
         self.port = port
         self.key = key
@@ -32,6 +46,12 @@ class Server():
 
 
     def handle_client(self, client):
+        """
+        Handle messages from a single client.
+        
+        Args:
+            client (socket.socket): Client socket connection
+        """
         while True:
             try:
                 message = client.recv(1024)
@@ -49,12 +69,18 @@ class Server():
    
 
     def broadcast(self, message):
+        """
+        Send a message to all connected clients.
+        
+        Args:
+            message (bytes): Message to broadcast
+        """
         for client in self.clients:
             print(message)
             client.send(message)
 
     def run_server(self):
-
+        """Start the server and accept incoming connections."""
         self.socket = socket.socket()
         self.socket.bind((self.ip_adr, self.port))
         self.socket.listen()
@@ -82,9 +108,10 @@ class Server():
             thread = threading.Thread(target=self.handle_client, args=(self.socketConnection,))
             thread.start()
 
-        
+
 
     def close_connection(self):
+        """Close all server connections."""
         self.socketConnection.close()
         self.socket.close()
         self.connectionAddress = None
@@ -92,8 +119,20 @@ class Server():
 
 
 class Client():
-
+    """Client class for connecting to and interacting with the chat server."""
+    
     def __init__(self, ip_adr, port, key, nickname, queue, queue_send):
+        """
+        Initialize the client.
+        
+        Args:
+            ip_address (str): Server IP address
+            port (int): Server port number
+            key (str): Private key for authentication
+            nickname (str): Client nickname
+            queue (multiprocessing.Queue): Queue for received messages
+            queue_send (multiprocessing.Queue): Queue for messages to send
+        """
         self.ip_adr = ip_adr
         self.port = port 
         self.key = key
@@ -111,6 +150,12 @@ class Client():
 
 
     def connect_to_server(self):
+        """
+        Connect to the chat server.
+        
+        Returns:
+            bool: True if connection successful, False otherwise
+        """
         self.socket = socket.socket()
         count_of_connection = 0
         while True:
@@ -143,6 +188,7 @@ class Client():
         return True
     
     def send_message(self):
+        """Continuously send messages from the send queue."""
         while True:
             if not self.queue_send.empty():
                 keyboardInput = self.queue_send.get()
@@ -166,7 +212,7 @@ class Client():
                     print(error)
 
     def recieve_message(self):
-
+        """Continuously receive messages from the server."""
         while True:
             receivedMsg = self.socket.recv(128)
             
@@ -189,7 +235,7 @@ class Client():
 
 
     def add_lines(self):
-
+        """Update GUI with messages from the queue."""
         try:
            
             if not self.queue.empty():
@@ -203,6 +249,7 @@ class Client():
             print(ex)
     
     def send_msg_button(self):
+        """Handle send button click event."""
         msg_for_send = self.entry1.get()
         self.queue.put(f'{self.nickname} : {msg_for_send}')
         self.queue_send.put(msg_for_send)
@@ -210,6 +257,7 @@ class Client():
 
 
     def run_gui(self):
+        """Initialize and run the GUI."""
         self.root= tk.Tk()
 
         self.label1 = tk.Label(self.root, text='Anon chat')
@@ -239,11 +287,11 @@ class Client():
 
 
     def run_client(self):
-        
+        """Start all client components (GUI, send, receive)."""
         
         guiThread = multiprocessing.Process(target=self.run_gui)
-        sendThread = threading.Thread(target=self.sendMsg)
-        receiveThread = threading.Thread(target=self.recieveMsg)
+        sendThread = threading.Thread(target=self.send_message)
+        receiveThread = threading.Thread(target=self.recieve_message)
 
         guiThread.start()
         sendThread.start()
@@ -258,14 +306,16 @@ class Client():
         
 
     def close_connection(self):
+        """Close the client connection."""
         self.socket.close()
 
 
 
 class Start():
+    """Main application starter class."""
+    
     def main_start():
-
-
+        """Start the chat application with user interaction."""
         #### read open ports ####
         list_of_ports = []
 
@@ -321,7 +371,7 @@ class Start():
                         tprint("Anon    chat")
                         print(f"trying to create server by private key {private_key}")
                         server = Server(ip_adr, port_for_key, private_key, nickname)
-                        server.runServer()
+                        server.run_server()
                         
                         
                         key_is_correct = True
@@ -359,7 +409,7 @@ class Start():
             if isConnected:
                 
 
-                client.runClient()
+                client.run_client()
                 
 
                 
