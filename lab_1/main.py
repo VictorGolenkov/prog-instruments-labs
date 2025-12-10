@@ -53,7 +53,7 @@ class Server():
             print(message)
             client.send(message)
 
-    def runServer(self):
+    def run_server(self):
 
         self.socket = socket.socket()
         self.socket.bind((self.ip_adr, self.port))
@@ -84,7 +84,7 @@ class Server():
 
         
 
-    def closeConnection(self):
+    def close_connection(self):
         self.socketConnection.close()
         self.socket.close()
         self.connectionAddress = None
@@ -142,7 +142,7 @@ class Client():
             print(error)
         return True
     
-    def sendMsg(self):
+    def send_message(self):
         while True:
             if not self.queue_send.empty():
                 keyboardInput = self.queue_send.get()
@@ -165,7 +165,7 @@ class Client():
                     print("Sorry, we can't send your message")
                     print(error)
 
-    def recieveMsg(self):
+    def recieve_message(self):
 
         while True:
             receivedMsg = self.socket.recv(128)
@@ -238,7 +238,7 @@ class Client():
         self.root.mainloop()
 
 
-    def runClient(self):
+    def run_client(self):
         
         
         guiThread = multiprocessing.Process(target=self.run_gui)
@@ -257,7 +257,7 @@ class Client():
         
         
 
-    def closeConnection(self):
+    def close_connection(self):
         self.socket.close()
 
 
