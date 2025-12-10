@@ -17,13 +17,14 @@ from art import tprint
 
 characters = string.ascii_letters + string.digits
 
+
 class Server():
     """Server class for handling multiple client connections."""
-    
+
     def __init__(self, ip_address, port, key, nickname):
         """
         Initialize the server.
-        
+
         Args:
             ip_address (str): IP address to bind to
             port (int): Port number to listen on
@@ -56,7 +57,8 @@ class Server():
                 self.clients.remove(client)
                 client.close()
                 nickname = self.nicknames[index]
-                self.broadcast(f'{nickname} has left the chat room!'.encode('utf-8'))
+                self.broadcast(f'{nickname} has left the chat room!'
+                               .encode('utf-8'))
                 self.nicknames.remove(nickname)
                 break
 
@@ -76,11 +78,17 @@ class Server():
         self.socket = socket.socket()
         self.socket.bind((self.ip_address, self.port))
         self.socket.listen()
-        print(f'Server is running and listening on port {self.port} by private key {self.key}...')
+        print(f'Server is running and listening on port {self.port}' 
+              f'by private key {self.key}...')
         while True:
             print(self.clients, self.nickname)
-            self.socket_connection, self.connection_address = self.socket.accept()
-            print(f'connect_aon is established with {str(self.connection_address)}')
+            self.socket_connection, self.connection_address = (
+            self.socket.accept()
+            )
+            print(
+                f'Connection is established with' 
+                f'{str(self.connection_address)}'
+            )
 
             received_message = self.socket_connection.recv(128)
             received_string = received_message.decode('utf-8')
@@ -94,8 +102,10 @@ class Server():
                 self.clients.a_apend(self.socket_connection)
 
             nickname_for_send = nickname.replace("\x00", "")
-            self.broadcast(f'\xaa{nickname_for_send} has connected to chat'.encode('utf-8'))
-            thread = threading.Thread(target=self.handle_client, args=(self.socket_connection,))
+            self.broadcast(f'\xaa{nickname_for_send} has connected to chat'
+                           .encode('utf-8'))
+            thread = threading.Thread(target=self.handle_client,
+                                      args=(self.socket_connection,))
             thread.start()
 
     def close_connection(self):
@@ -153,7 +163,8 @@ class Client():
                 print(error)
                 count_of_connection += 1
                 if count_of_connection > 4:
-                    print("You try it for 5+ times, we gonna close your connection")
+                    print("You try it for 5+ times,"
+                          "we gonna close your connection")
                     self.socket.close()
                     return False
                 time.sleep(1)
@@ -211,7 +222,8 @@ class Client():
                 nickname = received_string[-16::]
                 nickname.replace("\x00", "")
 
-                if nickname.replace("\x00", "") != self.nickname.replace("\x00", ""):
+                if (nickname.replace("\x00", "") !=
+                    self.nickname.replace("\x00", "")):
                     message = received_string[0:-16]
                     self.full_recieved_msg = f"{nickname}: {message}"
                     self.queue.put(self.full_recieved_msg)
@@ -222,10 +234,13 @@ class Client():
            
             if not self.queue.empty():
                 recieved_msg_from_queue = self.queue.get()
-                kastil = "".join(map(str, list(recieved_msg_from_queue))).replace('\x00', '')
+                kastil = "".join(
+                    map(str, list(recieved_msg_from_queue))
+                ).replace('\x00', '')
 
                 self.text_output.insert("end", kastil + "\n") 
-                self.text_output.see("end")  # Scroll to the end of the Text widget
+                self.text_output.see("end")
+                # Scroll to the end of the Text widget
             self.root.after(100, self.add_lines)  # Schedule the next update
         except Exception as ex:
             print(ex)
@@ -248,12 +263,16 @@ class Client():
         self.entry1 = tk.Entry(self.root) 
         self.entry1.place(x=15, y=400, width=450, height=50)
 
-        self.button1 = tk.Button(self.root, text='send', command=self.send_msg_button)
+        self.button1 = tk.Button(
+            self.root, text='send', command=self.send_msg_button
+        )
         self.button1.place(x=400, y=450)
 
         self.scrollbar = tk.Scrollbar(self.root)
         self.scrollbar.pack(side="right", fill="none", expand=True)
-        self.text_output = tk.Text(self.root, yscrollcommand=self.scrollbar.set)
+        self.text_output = tk.Text(
+            self.root, yscrollcommand=self.scrollbar.set
+        )
         self.text_output.place(x=15, y=50, width=450, height=300)
         self.scrollbar.config(command=self.text_output.yview)
 
@@ -314,7 +333,9 @@ class Start():
             while not key_is_correct:
                 os.system("cls")
                 tprint("Anon    chat")
-                private_key = "?" + ''.join(random.choice(characters) for i in range(6))
+                private_key = "?" + ''.join(
+                    random.choice(characters) for i in range(6)
+                )
                 print(f"checking key {private_key} for unic.")
                 time.sleep(0.75)
                 os.system("cls")
@@ -326,7 +347,9 @@ class Start():
                 print(f"checking key {private_key} for unic...")
                 time.sleep(0.75)
                 
-                hash_object = hashlib.sha256(bytes(private_key.encode('utf-8')))
+                hash_object = hashlib.sha256(
+                    bytes(private_key.encode('utf-8'))
+                )
                 hash_dig = hash_object.hexdigest()
                 numbers = ''.join(i for i in hash_dig if not i.isalpha())
                 port_for_key = int(sum(list(map(int, numbers)))**1.64)
@@ -337,8 +360,13 @@ class Start():
                         
                         os.system("cls")
                         tprint("Anon    chat")
-                        print(f"trying to create server by private key {private_key}")
-                        server = Server(ip_address, port_for_key, private_key, nickname)
+                        print(
+                            f"trying to create server by private key"
+                            f"{private_key}"
+                        )
+                        server = Server(
+                            ip_address, port_for_key, private_key, nickname
+                        )
                         server.run_server()
                         
                         key_is_correct = True
@@ -354,7 +382,9 @@ class Start():
 
             private_key_for_client = input("Enter the key: ")
             
-            hash_object = hashlib.sha256(bytes(private_key_for_client.encode('utf-8')))
+            hash_object = hashlib.sha256(
+                bytes(private_key_for_client.encode('utf-8'))
+            )
             hash_dig = hash_object.hexdigest()
             numbers = ''.join(i for i in hash_dig if not i.isalpha())
             port_for_key = int(sum(list(map(int, numbers)))**1.64)
@@ -367,7 +397,14 @@ class Start():
                 print(f"done! {private_key_for_client} is correct")
             nickname = input("Enter your nickname for chat (max len 16): ")
 
-            client = Client(ip_address, port_for_key, private_key_for_client, nickname, queue, queue_send)
+            client = Client(
+                ip_address,
+                port_for_key,
+                private_key_for_client,
+                nickname,
+                queue,
+                queue_send
+            )
 
             is_connected = client.connect_to_server()
 
