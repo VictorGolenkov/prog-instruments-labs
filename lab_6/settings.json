@@ -1,0 +1,13 @@
+{
+    "alphabet": "абвгдеёжзийклмнопрстуфхцчшщъыьэюя",
+
+    "original_t1": "task_1/original_text.txt",
+    "encrypted_t1": "task_1/encrypted_text.txt",
+    "decrypted_t1": "tasK_1/decrypted_text.txt",
+    "key_path_t1": "task_1/key.txt",
+    "key": 5,
+
+    "original_t2": "task_2/original_text.txt",
+    "decrypted_t2": "task_2/decrypted_text.txt",
+    "key_path_t2": "task_2/key.txt"
+}
