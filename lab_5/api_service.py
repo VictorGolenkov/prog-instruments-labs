@@ -59,7 +59,7 @@ class ExternalAPIService:
             data = response.json()
             
             if 'loc' not in data:
-                logger.error("Ключ 'loc' отсутствует в ответе API")
+                logger.error("Ключ 'loc' отсутствует в ответе API", exc_info=True)
                 raise KeyError("Location data not found in response")
             
             location = data['loc']
@@ -67,10 +67,10 @@ class ExternalAPIService:
             return location
             
         except KeyError as e:
-            logger.error(f"Ошибка структуры данных API: {str(e)}")
+            logger.error(f"Ошибка структуры данных API", exc_info=True)
             raise
         except Exception as e:
-            logger.error(f"Неожиданная ошибка при получении геолокации: {str(e)}", exc_info=True)
+            logger.error(f"Неожиданная ошибка при получении геолокации", exc_info=True)
             raise
 
     @classmethod
@@ -104,7 +104,7 @@ class ExternalAPIService:
             data = response.json()
             
             if 'main' not in data or 'temp' not in data['main']:
-                logger.error("Данные о температуре отсутствуют в ответе API")
+                logger.error("Данные о температуре отсутствуют в ответе API", exc_info=True)
                 raise KeyError("Temperature data not found in response")
             
             temperature = data['main']['temp']
@@ -112,8 +112,8 @@ class ExternalAPIService:
             return temperature
             
         except KeyError as e:
-            logger.error(f"Ошибка структуры данных API: {str(e)}")
+            logger.error(f"Ошибка структуры данных API", exc_info=True)
             raise
         except Exception as e:
-            logger.error(f"Неожиданная ошибка при получении температуры: {str(e)}", exc_info=True)
+            logger.error(f"Неожиданная ошибка при получении температуры", exc_info=True)
             raise

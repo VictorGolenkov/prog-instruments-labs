@@ -63,7 +63,7 @@ class StudentDatabase:
             logger.debug(f"Студент с номером {roll_number} существует: {exists}")
             return exists
         except Exception as e:
-            logger.error(f"Неожиданная ошибка при проверке существования студента: {str(e)}")
+            logger.error(f"Неожиданная ошибка при проверке существования студента", exc_info=True)
             raise     
     
     @staticmethod    
@@ -102,10 +102,10 @@ class StudentDatabase:
             return True
             
         except ValueError as e:
-            logger.error(f"Ошибка валидации при обновлении студента: {str(e)}")
+            logger.error(f"Ошибка валидации при обновлении студента", exc_info=True)
             raise
         except Exception as e:
-            logger.error(f"Неожиданная ошибка при обновлении студента: {str(e)}", exc_info=True)
+            logger.error(f"Неожиданная ошибка при обновлении студента", exc_info=True)
             if connection:
                 connection.rollback()
             raise Exception(f"Database error: {str(e)}")
@@ -150,10 +150,10 @@ class StudentDatabase:
             return True
             
         except ValueError as e:
-            logger.error(f"Ошибка валидации при удалении студента: {str(e)}")
+            logger.error(f"Ошибка валидации при удалении студента", exc_info=True)
             raise
         except Exception as e:
-            logger.error(f"Неожиданная ошибка при удалении студента: {str(e)}", exc_info=True)
+            logger.error(f"Неожиданная ошибка при удалении студента", exc_info=True)
             if connection:
                 connection.rollback()
             raise Exception(f"Database error: {str(e)}")
@@ -191,7 +191,7 @@ class StudentDatabase:
             logger.info(f"Студент сохранен успешно. ID: {student.roll_number}")
             return True
         except Exception as e:
-            logger.error(f"Неожиданная ошибка при сохранении студента: {str(e)}", exc_info=True)
+            logger.error(f"Неожиданная ошибка при сохранении студента", exc_info=True)
             if connection:
                 connection.rollback()
             raise Exception(f"Database error: {str(e)}")
@@ -227,7 +227,7 @@ class StudentDatabase:
             return students
             
         except Exception as e:
-            logger.error(f"Неожиданная ошибка при получении студентов: {str(e)}", exc_info=True)
+            logger.error(f"Неожиданная ошибка при получении студентов", exc_info=True)
             raise Exception(f"Database error: {str(e)}")
         finally:
             if connection is not None:
@@ -262,7 +262,7 @@ class StudentDatabase:
             return students
             
         except Exception as e:
-            logger.error(f"Неожиданная ошибка при получении отсортированных студентов: {str(e)}", exc_info=True)
+            logger.error(f"Неожиданная ошибка при получении отсортированных студентов", exc_info=True)
             raise Exception(f"Database error: {str(e)}")
         finally:
             if connection is not None:

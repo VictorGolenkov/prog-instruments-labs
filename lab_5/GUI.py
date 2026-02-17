@@ -12,9 +12,9 @@ from tkinter.scrolledtext import ScrolledText
 
 import matplotlib.pyplot as plt
 
-from APIService import ExternalAPIService
-from DataBaseService import Student, StudentDatabase
-from ValidationService import ValidationFunctions
+from api_service import ExternalAPIService
+from data_base_service import Student, StudentDatabase
+from validation_service import ValidationFunctions
 
 logger = logging.getLogger('StudentManagement')
 
@@ -59,7 +59,7 @@ class StudentManagementApp:
             self.temperature = ExternalAPIService.fetch_temperature()
             logger.info(f"Данные получены: location={self.location}, temperature={self.temperature}")
         except Exception as e:
-            logger.error(f"Ошибка при получении внешних данных: {str(e)}", exc_info=True)
+            logger.error(f"Ошибка при получении внешних данных", exc_info=True)
             self.location = "Unknown"
             self.temperature = "Unknown"
         
@@ -341,10 +341,10 @@ class StudentManagementApp:
             logger.debug("Поля очищены, окно добавления закрыто")
             
         except ValueError as e:
-            logger.error(f"Ошибка валидации при добавлении студента: {str(e)}")
+            logger.error(f"Ошибка валидации при добавлении студента", exc_info=True)
             showerror('Failure', str(e))
         except Exception as e:
-            logger.error(f"Критическая ошибка при добавлении студента: {str(e)}", exc_info=True)
+            logger.error(f"Критическая ошибка при добавлении студента", exc_info=True)
             showerror('Failure', str(e))
     
     def update_entry(self):
@@ -386,10 +386,10 @@ class StudentManagementApp:
             self.hide_update_window()
             
         except ValueError as e:
-            logger.error(f"Ошибка валидации при обновлении студента: {str(e)}")
+            logger.error(f"Ошибка валидации при обновлении студента", exc_info=True)
             showerror('Failure', str(e))
         except Exception as e:
-            logger.error(f"Критическая ошибка при обновлении студента: {str(e)}", exc_info=True)
+            logger.error(f"Критическая ошибка при обновлении студента", exc_info=True)
             showerror('Failure', str(e))
     
     def delete_entry(self):
@@ -426,10 +426,10 @@ class StudentManagementApp:
             self.hide_delete_window()
             
         except ValueError as e:
-            logger.error(f"Ошибка валидации при удалении студента: {str(e)}")
+            logger.error(f"Ошибка валидации при удалении студента", exc_info=True)
             showerror("Error", str(e))
         except Exception as e:
-            logger.error(f"Критическая ошибка при удалении студента: {str(e)}", exc_info=True)
+            logger.error(f"Критическая ошибка при удалении студента", exc_info=True)
             showerror("Error", str(e))
     
     def view_entries(self):
@@ -467,7 +467,7 @@ class StudentManagementApp:
             logger.info("Данные успешно отображены в окне просмотра")
             
         except Exception as e:
-            logger.error(f"Ошибка при загрузке данных студентов: {str(e)}", exc_info=True)
+            logger.error(f"Ошибка при загрузке данных студентов", exc_info=True)
             showerror("Error", str(e))
             self.main_window.deiconify()
             self.view_window.withdraw()
@@ -509,7 +509,7 @@ class StudentManagementApp:
             logger.info("Диаграмма успешно создана и отображена")
             
         except Exception as e:
-            logger.error(f"Ошибка при создании диаграммы: {str(e)}", exc_info=True)
+            logger.error(f"Ошибка при создании диаграммы", exc_info=True)
             showerror("Error", f"Failed to display chart: {str(e)}")
     
     def show_add_window(self):
