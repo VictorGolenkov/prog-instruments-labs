@@ -15,7 +15,49 @@ import tkinter as tk
 
 from art import tprint
 
-characters = string.ascii_letters + string.digits
+
+DEFAULT_HOST = "localhost"
+PORT_SCAN_START = 0
+PORT_SCAN_END = 65536
+PORT_SCAN_STEP = 1000
+PORT_SCAN_TIMEOUT = 0.1
+MIN_VALID_PORT = 2000
+SPECIAL_BYTE_PREFIX = 194
+
+MAX_CONNECTION_ATTEMPTS = 5
+CONNECTION_RETRY_DELAY = 1
+SOCKET_BUFFER_SIZE = 1024
+NICKNAME_BUFFER_SIZE = 128
+MESSAGE_BUFFER_SIZE = 128
+
+NICKNAME_MAX_LENGTH = 16
+NICKNAME_ENCODED_LENGTH = 16
+
+KEY_PREFIX = "?"
+KEY_GENERATION_LENGTH = 6
+KEY_CHECK_DELAY = 0.75
+PORT_CALCULATION_DELAY = 0.3
+PORT_CALCULATION_EXPONENT = 1.64
+
+GUI_TITLE = "Anon chat"
+GUI_FONT = ('helvetica', 14)
+GUI_WIDTH = 500
+GUI_HEIGHT = 500
+GUI_LABEL_X = 220
+GUI_LABEL_Y = 15
+GUI_ENTRY_X = 15
+GUI_ENTRY_Y = 400
+GUI_ENTRY_WIDTH = 450
+GUI_ENTRY_HEIGHT = 50
+GUI_BUTTON_X = 400
+GUI_BUTTON_Y = 450
+GUI_OUTPUT_X = 15
+GUI_OUTPUT_Y = 50
+GUI_OUTPUT_WIDTH = 450
+GUI_OUTPUT_HEIGHT = 300
+GUI_UPDATE_INTERVAL = 100
+
+CHARACTERS = string.ascii_letters + string.digits
 
 
 class Server():
@@ -50,7 +92,7 @@ class Server():
         """
         while True:
             try:
-                message = client.recv(1024)
+                message = client.recv(SOCKET_BUFFER_SIZE)
                 self.broadcast(message)
             except:
                 index = self.clients.index(client)
@@ -90,9 +132,9 @@ class Server():
                 f'{str(self.connection_address)}'
             )
 
-            received_message = self.socket_connection.recv(128)
+            received_message = self.socket_connection.recv(NICKNAME_BUFFER_SIZE)
             received_string = received_message.decode('utf-8')
-            nickname = received_string[-16::]
+            nickname = received_string[-NICKNAME_ENCODED_LENGTH::]
             nickname.replace("\x00", "")
 
             if nickname not in self.nicknames:
@@ -143,7 +185,6 @@ class Client():
         self.full_recieved_msg = ''
         self.queue = queue
         self.queue_send = queue_send
-        #TODO: queue v __init__ (param) a dalshe hz
 
     def connect_to_server(self):
         """
@@ -162,15 +203,15 @@ class Client():
                 print("Error while connecting to server")
                 print(error)
                 count_of_connection += 1
-                if count_of_connection > 4:
+                if count_of_connection > MAX_CONNECTION_ATTEMPTS:
                     print("You try it for 5+ times,"
                           "we gonna close your connection")
                     self.socket.close()
                     return False
-                time.sleep(1)
+                time.sleep(CONNECTION_RETRY_DELAY)
         list_for_join = []
         nickname_enc = self.nickname.encode('utf-8')
-        need_bytes_of_zero = 16 - len(nickname_enc)
+        need_bytes_of_zero = NICKNAME_ENCODED_LENGTH - len(nickname_enc)
 
         list_for_join.append(b'\x00'*need_bytes_of_zero)
         list_for_join.append(nickname_enc)
@@ -194,7 +235,7 @@ class Client():
                 message_enc = keyboard_input.encode("utf-8")
 
                 nickname_enc = self.nickname.encode('utf-8')
-                need_bytes_of_zero = 16 - len(nickname_enc)
+                need_bytes_of_zero = NICKNAME_ENCODED_LENGTH - len(nickname_enc)
 
                 list_for_join.append(message_enc)
                 list_for_join.append(b'\x00'*need_bytes_of_zero)
@@ -211,20 +252,20 @@ class Client():
     def recieve_message(self):
         """Continuously receive messages from the server."""
         while True:
-            received_message = self.socket.recv(128)
+            received_message = self.socket.recv(MESSAGE_BUFFER_SIZE)
             
-            if received_message[0] == 194:
+            if received_message[0] == SPECIAL_BYTE_PREFIX:
                 received_string = received_message.decode("utf-8")
 
             else:
                 received_string = received_message.decode("utf-8")
 
-                nickname = received_string[-16::]
+                nickname = received_string[-NICKNAME_ENCODED_LENGTH::]
                 nickname.replace("\x00", "")
 
                 if (nickname.replace("\x00", "") !=
                     self.nickname.replace("\x00", "")):
-                    message = received_string[0:-16]
+                    message = received_string[0:-NICKNAME_ENCODED_LENGTH]
                     self.full_recieved_msg = f"{nickname}: {message}"
                     self.queue.put(self.full_recieved_msg)
 
@@ -240,8 +281,8 @@ class Client():
 
                 self.text_output.insert("end", kastil + "\n") 
                 self.text_output.see("end")
-                # Scroll to the end of the Text widget
-            self.root.after(100, self.add_lines)  # Schedule the next update
+                
+            self.root.after(GUI_UPDATE_INTERVAL, self.add_lines)
         except Exception as ex:
             print(ex)
     
@@ -256,28 +297,28 @@ class Client():
         """Initialize and run the GUI."""
         self.root= tk.Tk()
 
-        self.label1 = tk.Label(self.root, text='Anon chat')
-        self.label1.config(font=('helvetica', 14))
-        self.label1.place(x=220, y=15)
+        self.label1 = tk.Label(self.root, text=GUI_TITLE)
+        self.label1.config(font=GUI_FONT)
+        self.label1.place(x=GUI_LABEL_X, y=GUI_LABEL_Y)
 
         self.entry1 = tk.Entry(self.root) 
-        self.entry1.place(x=15, y=400, width=450, height=50)
+        self.entry1.place(x=GUI_ENTRY_X, y=GUI_ENTRY_Y, width=GUI_ENTRY_WIDTH, height=GUI_ENTRY_HEIGHT)
 
         self.button1 = tk.Button(
             self.root, text='send', command=self.send_msg_button
         )
-        self.button1.place(x=400, y=450)
+        self.button1.place(x=GUI_BUTTON_X, y=GUI_BUTTON_Y)
 
         self.scrollbar = tk.Scrollbar(self.root)
         self.scrollbar.pack(side="right", fill="none", expand=True)
         self.text_output = tk.Text(
             self.root, yscrollcommand=self.scrollbar.set
         )
-        self.text_output.place(x=15, y=50, width=450, height=300)
+        self.text_output.place(x=GUI_OUTPUT_X, y=GUI_OUTPUT_Y, width=GUI_OUTPUT_WIDTH, height=GUI_OUTPUT_HEIGHT)
         self.scrollbar.config(command=self.text_output.yview)
 
-        self.root.minsize(500, 500)
-        self.root.maxsize(500, 500)
+        self.root.minsize(GUI_WIDTH, GUI_HEIGHT)
+        self.root.maxsize(GUI_WIDTH, GUI_HEIGHT)
 
         self.root.after(0, self.add_lines)
         self.root.mainloop()
@@ -292,7 +333,6 @@ class Client():
         send_thread.start()
         receive_thread.start()
         
-
         send_thread.join()
         receive_thread.join()
         
@@ -304,22 +344,33 @@ class Client():
 class Start():
     """Main application starter class."""
     
-    def main_start():
-        """Start the chat application with user interaction."""
-        #### read open ports ####
+    @staticmethod
+    def read_open_ports():
+        """
+        Get list of ports currently in use on localhost.
+        
+        Returns:
+            list: Port numbers that are currently in use
+        """
         list_of_ports = []
 
-        for i in range(0, 65536, 1000):
-            s = socket.socket()
-            s.settimeout(0.1)
+        for i in range(PORT_SCAN_START, PORT_SCAN_END, PORT_SCAN_STEP):
+            sock = socket.socket()
+            sock.settimeout(PORT_SCAN_TIMEOUT)
             try:
-                s.connect(('127.0.0.1', i))
+                sock.connect((DEFAULT_HOST, i))
             except socket.error:
                 pass
             else:
-                s.close
+                sock.close
                 list_of_ports.append(i)
-        #########################
+                
+        return list_of_ports
+    
+    @staticmethod
+    def main_start():
+        """Start the chat application with user interaction."""
+        list_of_ports = Start.read_open_ports()
 
         os.system("cls")
         tprint("Anon    chat")
@@ -328,34 +379,34 @@ class Start():
 
         if command == "S":
             key_is_correct = False
-            ip_address = "localhost"
+            ip_address = DEFAULT_HOST
             nickname = None
             while not key_is_correct:
                 os.system("cls")
                 tprint("Anon    chat")
-                private_key = "?" + ''.join(
-                    random.choice(characters) for i in range(6)
+                private_key = KEY_PREFIX + ''.join(
+                    random.choice(CHARACTERS) for i in range(KEY_GENERATION_LENGTH)
                 )
                 print(f"checking key {private_key} for unic.")
-                time.sleep(0.75)
+                time.sleep(KEY_CHECK_DELAY)
                 os.system("cls")
                 tprint("Anon    chat")
                 print(f"checking key {private_key} for unic..")
-                time.sleep(0.75)
+                time.sleep(KEY_CHECK_DELAY)
                 os.system("cls")
                 tprint("Anon    chat")
                 print(f"checking key {private_key} for unic...")
-                time.sleep(0.75)
+                time.sleep(KEY_CHECK_DELAY)
                 
                 hash_object = hashlib.sha256(
                     bytes(private_key.encode('utf-8'))
                 )
                 hash_dig = hash_object.hexdigest()
                 numbers = ''.join(i for i in hash_dig if not i.isalpha())
-                port_for_key = int(sum(list(map(int, numbers)))**1.64)
-                time.sleep(0.3)
+                port_for_key = int(sum(list(map(int, numbers)))**PORT_CALCULATION_EXPONENT)
+                time.sleep(PORT_CALCULATION_DELAY)
 
-                if port_for_key not in list_of_ports or port_for_key > 2000:
+                if port_for_key not in list_of_ports or port_for_key > MIN_VALID_PORT:
                     try:
                         
                         os.system("cls")
@@ -378,7 +429,7 @@ class Start():
             queue = multiprocessing.Queue()
             queue_send = multiprocessing.Queue()
             
-            ip_address = "localhost"
+            ip_address = DEFAULT_HOST
 
             private_key_for_client = input("Enter the key: ")
             
@@ -387,15 +438,15 @@ class Start():
             )
             hash_dig = hash_object.hexdigest()
             numbers = ''.join(i for i in hash_dig if not i.isalpha())
-            port_for_key = int(sum(list(map(int, numbers)))**1.64)
-            time.sleep(0.3)
+            port_for_key = int(sum(list(map(int, numbers)))**PORT_CALCULATION_EXPONENT)
+            time.sleep(PORT_CALCULATION_DELAY)
 
-            if port_for_key not in list_of_ports or port_for_key < 2000:
+            if port_for_key not in list_of_ports or port_for_key < MIN_VALID_PORT:
                 key_is_correct = True
                 os.system("cls")
                 tprint("Anon    chat")
                 print(f"done! {private_key_for_client} is correct")
-            nickname = input("Enter your nickname for chat (max len 16): ")
+            nickname = input(f"Enter your nickname for chat (max len {NICKNAME_MAX_LENGTH}): ")
 
             client = Client(
                 ip_address,
@@ -423,7 +474,3 @@ class Start():
 
 if __name__ == "__main__":
     Start.main_start()
-    
-    #TODO: 1. check users by ip
-    #      2. create ports for chat by some hash func
-   
